@@ -11,7 +11,7 @@ export const subjectSchema = z.object({
 });
 
 export const studentSchema = z.object({
-  roll: z.number(),
+  roll: z.string(),
   name: z.string(),
   dob: z.string(),
   gender: z.enum(["Male", "Female", "Other"]),
@@ -43,9 +43,17 @@ export const adminCredentials = {
   password: "demo123",
 };
 
+export const testStudentCredentials = [
+  { roll: "AP22110010001", dob: "2004-05-15", name: "Aarav Sharma" },
+  { roll: "AP22110010002", dob: "2004-08-22", name: "Priya Patel" },
+  { roll: "AP23120010001", dob: "2005-01-10", name: "Rahul Reddy" },
+  { roll: "AP23130010001", dob: "2005-03-25", name: "Sneha Kumar" },
+  { roll: "AP24110010001", dob: "2006-07-12", name: "Arjun Singh" },
+];
+
 export interface AuthUser {
   type: "admin" | "student";
   email?: string;
-  roll?: number;
+  roll?: string;
   name?: string;
 }

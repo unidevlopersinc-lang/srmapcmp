@@ -109,7 +109,7 @@ export default function StudentProfile() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (params?.roll) {
-        const foundStudent = getStudentByRoll(parseInt(params.roll, 10));
+        const foundStudent = getStudentByRoll(params.roll);
         setStudent(foundStudent || null);
       }
       setIsLoading(false);

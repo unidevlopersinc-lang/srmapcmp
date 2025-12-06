@@ -9,7 +9,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   loginAsAdmin: (email: string, password: string) => boolean;
-  loginAsStudent: (roll: number, dob: string) => boolean;
+  loginAsStudent: (roll: string, dob: string) => boolean;
   logout: () => void;
 }
 
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false;
   }, []);
 
-  const loginAsStudent = useCallback((roll: number, dob: string): boolean => {
+  const loginAsStudent = useCallback((roll: string, dob: string): boolean => {
     const validStudent = validateStudentLogin(roll, dob);
     if (validStudent) {
       const authUser: AuthUser = { 

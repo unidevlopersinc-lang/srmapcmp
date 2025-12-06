@@ -54,11 +54,11 @@ export default function Login() {
 
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    const roll = parseInt(studentRoll, 10);
-    if (isNaN(roll)) {
+    const roll = studentRoll.trim().toUpperCase();
+    if (!roll || roll.length < 5) {
       toast({
         title: "Invalid Roll Number",
-        description: "Please enter a valid roll number.",
+        description: "Please enter a valid roll number (e.g., AP22110010001).",
         variant: "destructive",
       });
       setStudentLoading(false);
@@ -200,12 +200,16 @@ export default function Login() {
                       <Input
                         id="student-roll"
                         type="text"
-                        placeholder="Enter your roll number"
+                        placeholder="AP22110010001"
                         value={studentRoll}
                         onChange={(e) => setStudentRoll(e.target.value)}
                         required
                         data-testid="input-student-roll"
+                        aria-describedby="student-roll-hint"
                       />
+                      <p id="student-roll-hint" className="text-xs text-muted-foreground">
+                        Demo: AP22110010001
+                      </p>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="student-dob">Date of Birth</Label>
@@ -216,7 +220,11 @@ export default function Login() {
                         onChange={(e) => setStudentDob(e.target.value)}
                         required
                         data-testid="input-student-dob"
+                        aria-describedby="student-dob-hint"
                       />
+                      <p id="student-dob-hint" className="text-xs text-muted-foreground">
+                        Demo: 2004-05-15
+                      </p>
                     </div>
                     <Button 
                       type="submit" 

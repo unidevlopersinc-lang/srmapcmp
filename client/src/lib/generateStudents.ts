@@ -1,4 +1,5 @@
 import type { Student, Subject } from "@shared/schema";
+import { testStudentCredentials } from "@shared/schema";
 
 const firstNames = [
   "Aarav", "Aditi", "Aisha", "Amit", "Ananya", "Arjun", "Bhavya", "Chetan", "Deepa", "Dev",
@@ -27,6 +28,23 @@ const states = ["Andhra Pradesh", "Telangana", "Tamil Nadu", "Karnataka", "Mahar
 const branches: Array<"CSE" | "ECE" | "EEE" | "MECH" | "CIVIL" | "IT"> = ["CSE", "ECE", "EEE", "MECH", "CIVIL", "IT"];
 const sections: Array<"A" | "B" | "C" | "D"> = ["A", "B", "C", "D"];
 const genders: Array<"Male" | "Female" | "Other"> = ["Male", "Female", "Other"];
+
+const branchCodes: Record<string, string> = {
+  CSE: "11",
+  ECE: "12", 
+  EEE: "13",
+  MECH: "14",
+  CIVIL: "15",
+  IT: "16"
+};
+
+function generateRollNumber(admissionYear: number, branch: string, section: string, seq: number): string {
+  const yearCode = String(admissionYear).slice(-2);
+  const branchCode = branchCodes[branch] || "11";
+  const sectionCode = String("ABCD".indexOf(section) + 1).padStart(2, "0");
+  const seqNum = String(seq).padStart(4, "0");
+  return `AP${yearCode}${branchCode}${sectionCode}${seqNum}`;
+}
 const hostels = ["Hostel A", "Hostel B", "Hostel C", "Hostel D", "Hostel E", null];
 
 const subjectsByBranch: Record<string, string[]> = {
@@ -97,27 +115,83 @@ function generateDOB(admissionYear: number): string {
   return `${birthYear}-${month}-${day}`;
 }
 
+function createTestStudent(testCred: typeof testStudentCredentials[0], index: number): Student {
+  const rollParts = testCred.roll.match(/AP(\d{2})(\d{2})(\d{2})(\d{4})/);
+  const yearCode = rollParts ? parseInt(rollParts[1]) : 22;
+  const branchCode = rollParts ? rollParts[2] : "11";
+  
+  const branchMap: Record<string, "CSE" | "ECE" | "EEE" | "MECH" | "CIVIL" | "IT"> = {
+    "11": "CSE", "12": "ECE", "13": "EEE", "14": "MECH", "15": "CIVIL", "16": "IT"
+  };
+  const branch = branchMap[branchCode] || "CSE";
+  const admissionYear = 2000 + yearCode;
+  const currentYear = 2024;
+  const year = Math.min(4, Math.max(1, currentYear - admissionYear + 1)) as 1 | 2 | 3 | 4;
+  
+  const subjects = generateSubjects(branch);
+  const sgpa = calculateSGPA(subjects);
+  const cgpa = randomFloat(Math.max(6, sgpa - 0.5), Math.min(10, sgpa + 0.3));
+  
+  return {
+    roll: testCred.roll,
+    name: testCred.name,
+    dob: testCred.dob,
+    gender: index % 2 === 0 ? "Male" : "Female",
+    phone: `+91-${random(70000, 99999)}${random(10000, 99999)}`,
+    email: `${testCred.name.toLowerCase().replace(" ", ".")}@srmap.edu.in`,
+    address: `${randomChoice(cities)}, ${randomChoice(states)}`,
+    course: "B.Tech",
+    branch,
+    year,
+    section: "A",
+    admissionYear,
+    subjects,
+    sgpa,
+    cgpa: parseFloat(cgpa.toFixed(2)),
+    feePaid: 50000,
+    feePending: 0,
+    hostelName: randomChoice(hostels),
+    roomNo: random(101, 450),
+    attendance: randomFloat(75, 98, 1),
+    createdAt: new Date(Date.now() - random(0, 365 * 24 * 60 * 60 * 1000)).toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+}
+
 export function generateStudents(count: number = 1200): Student[] {
   const students: Student[] = [];
-  const usedRolls = new Set<number>();
+  const usedRolls = new Set<string>();
   const usedEmails = new Set<string>();
 
-  for (let i = 0; i < count; i++) {
+  testStudentCredentials.forEach((cred, idx) => {
+    const testStudent = createTestStudent(cred, idx);
+    students.push(testStudent);
+    usedRolls.add(testStudent.roll);
+    usedEmails.add(testStudent.email);
+  });
+
+  const rollCounters: Record<string, number> = {};
+  
+  for (let i = 0; i < count - testStudentCredentials.length; i++) {
     const firstName = randomChoice(firstNames);
     const lastName = randomChoice(lastNames);
     const name = `${firstName} ${lastName}`;
     
-    let roll: number;
-    do {
-      roll = random(10001, 99999);
-    } while (usedRolls.has(roll));
-    usedRolls.add(roll);
-
-    const admissionYear = random(2020, 2024);
+    const admissionYear = random(2021, 2024);
     const currentYear = 2024;
     const year = Math.min(4, Math.max(1, currentYear - admissionYear + 1));
     const branch = randomChoice(branches);
     const section = randomChoice(sections);
+    
+    const rollKey = `${admissionYear}-${branch}-${section}`;
+    rollCounters[rollKey] = (rollCounters[rollKey] || 2) + 1;
+    let roll = generateRollNumber(admissionYear, branch, section, rollCounters[rollKey]);
+    
+    while (usedRolls.has(roll)) {
+      rollCounters[rollKey]++;
+      roll = generateRollNumber(admissionYear, branch, section, rollCounters[rollKey]);
+    }
+    usedRolls.add(roll);
     
     let email: string;
     do {
@@ -166,7 +240,7 @@ export function generateStudents(count: number = 1200): Student[] {
     students.push(student);
   }
 
-  return students.sort((a, b) => a.roll - b.roll);
+  return students.sort((a, b) => a.roll.localeCompare(b.roll));
 }
 
 let cachedStudents: Student[] | null = null;
@@ -178,11 +252,11 @@ export function getStudents(): Student[] {
   return cachedStudents;
 }
 
-export function getStudentByRoll(roll: number): Student | undefined {
+export function getStudentByRoll(roll: string): Student | undefined {
   return getStudents().find(s => s.roll === roll);
 }
 
-export function validateStudentLogin(roll: number, dob: string): Student | null {
+export function validateStudentLogin(roll: string, dob: string): Student | null {
   const student = getStudentByRoll(roll);
   if (student && student.dob === dob) {
     return student;
