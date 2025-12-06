@@ -1,0 +1,21 @@
+Project: SRM AP College Portal — Static Demo (GitHub Pages)
+
+Goal
+Create a visually stunning, modern, **static** Student Management Portal called **"SRM AP College Portal"** that runs entirely on GitHub Pages. There is **no backend**. Authentication is a **client-side demo** only: the admin email & password are hardcoded in a single JS configuration file (clearly labelled "DEMO ONLY — DO NOT USE IN PRODUCTION"). Student login should be by roll number + DOB validated against the static dataset. The UI must use **Montserrat** as the site font and the page background should be **white**; the site should still be colorful via accents, cards, and illustrations. Include subtle, high-quality animations that respect `prefers-reduced-motion`.
+
+Important security note (for the README and top of the code): explain plainly that hardcoded credentials are insecure, visible to anyone, and only for demonstration.
+
+Design & UI requirements
+- Brand: **SRM AP College Portal** (logo text + simple mark).
+- Primary page background: **white**.
+- Typography: **Montserrat** (Google Fonts). Use a weight scale (300/400/600/700).
+- Color system: bright but tasteful — pick 2 accent colors + neutral palette (examples: teal #08AEEA and purple #7C5CFF, plus warm accent like #FFB86B). Use consistent shadowing, rounded 12–16px radii on cards, and soft glassy panels.
+- Layout: responsive, polished, and modern (desktop hero + left nav on wide screens, stacked on mobile).
+- Interactions: micro-interactions for buttons/rows, animated hero (SVG or Lottie), animated KPI numbers, skeleton loaders for data loading.
+- Respect accessibility: good contrast on text, `aria-*` on interactive controls, keyboard navigation, and `prefers-reduced-motion` fallback which disables non-essential animations.
+
+Tech stack & constraints
+- Static-only (HTML/CSS/JS) OR single-file React (choose one when implementing). The delivered repo must be ready to push to GitHub and work on GitHub Pages without server code.
+- Keep external dependencies minimal. Allowed: small libraries (Chart.js, Lottie-web, simple virtualizer like `list.js` or a tiny virtualization lib). If using React, use Vite and output build in `docs/` or `gh-pages` branch instructions.
+- All data must be committed as static files. Primary dataset: `/public/data/students.json` with **1,000–1,300** synthetic student records following this structure (example types):
+
